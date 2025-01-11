@@ -12,7 +12,7 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(config *pokeapi.Config, name string) error
+	callback    func(config *pokeapi.Config, name ...string) error
 }
 
 func cleanInput(text string) []string {
@@ -48,6 +48,16 @@ func getCommands() (commands map[string]cliCommand) {
 			description: "Displays pokemon in a given location",
 			callback:    commandExplore,
 		},
+		"catch": {
+			name:        "catch {pokemon}",
+			description: "Attempts to catch a pokemon",
+			callback:    commandCatch,
+		},
+		"inspect": {
+			name:        "inspect {pokemon}",
+			description: "Gives details for caught pokemon",
+			callback:    commandInspect,
+		},
 	}
 
 }
@@ -56,6 +66,7 @@ func startRepl() {
 	// initialize the empty config struct and set the client
 	var config pokeapi.Config
 	config.Client = pokeapi.NewClient(5*time.Second, time.Minute*5)
+	config.CaughtPokemon = map[string]pokeapi.Pokemon{}
 
 	// initialize the scanner and enter and endless loop
 	scanner := bufio.NewScanner(os.Stdin)
@@ -72,16 +83,16 @@ func startRepl() {
 
 		//set the command to the first word of the input and the arguement to the second then check if its a valid command
 		cmd := cleanedInput[0]
-		var arg string
+		var args []string
 		if len(cleanedInput) > 1 {
-			arg = cleanedInput[1]
+			args = cleanedInput[1:]
 		}
 		commands := getCommands()
 		command, ok := commands[cmd]
 		if ok {
 			//if its valid call the commands callback
 			fmt.Println()
-			if err := command.callback(&config, arg); err != nil {
+			if err := command.callback(&config, args...); err != nil {
 				fmt.Println()
 				fmt.Printf("%v", err)
 			}

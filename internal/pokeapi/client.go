@@ -19,6 +19,13 @@ type Client struct {
 	baseURL    string
 }
 
+type Config struct {
+	Next          *string
+	Previous      *string
+	Client        *Client
+	CaughtPokemon map[string]Pokemon
+}
+
 func NewClient(timeout, cacheInterval time.Duration) *Client {
 	return &Client{
 		cache: *pokecache.NewCache(cacheInterval),

@@ -62,9 +62,3 @@ type name struct {
 	Name     string
 	Language namedAPIResource
 }
-
-type Config struct {
-	Next     *string
-	Previous *string
-	Client   *Client
-}

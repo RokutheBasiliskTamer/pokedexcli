@@ -5,8 +5,8 @@ import (
 	"pokedexcli/internal/pokeapi"
 )
 
-func commandMap(config *pokeapi.Config, _name string) error {
-	res, err := config.Client.GetLocationArea(config.Next)
+func commandMap(cfg *pokeapi.Config, _args ...string) error {
+	res, err := cfg.Client.GetLocationArea(cfg.Next)
 	if err != nil {
 		return fmt.Errorf("error grabbing map: %w", err)
 	}
@@ -18,7 +18,7 @@ func commandMap(config *pokeapi.Config, _name string) error {
 		fmt.Printf("%s", result.Name)
 		fmt.Println()
 	}
-	config.Next = page.Next
-	config.Previous = page.Previous
+	cfg.Next = page.Next
+	cfg.Previous = page.Previous
 	return nil
 }
