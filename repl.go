@@ -4,13 +4,14 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"pokedexcli/internal/pokeapi"
 	"strings"
 )
 
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(config *pokeapi.Config) error
 }
 
 func cleanInput(text string) []string {
@@ -34,11 +35,24 @@ func getCommands() (commands map[string]cliCommand) {
 			description: "Displays a help message",
 			callback:    commandHelp,
 		},
+		"map": {
+			name:        "map",
+			description: "Displays next page of 20 locations",
+			callback:    commandMap,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Displays previous page of 20 locations",
+			callback:    commandMapB,
+		},
 	}
 	return commands
 }
 
 func startRepl() {
+
+	var config pokeapi.Config
+	config.Client = pokeapi.NewClient()
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
@@ -51,12 +65,15 @@ func startRepl() {
 		}
 		cmd := cleanedInput[0]
 		commands := getCommands()
-		for command := range commands {
-			if command == cmd {
-				if err := commands[cmd].callback(); err != nil {
-					fmt.Printf("%v", err)
-				}
+		command, ok := commands[cmd]
+		if ok {
+			if err := command.callback(&config); err != nil {
+				fmt.Println()
+				fmt.Printf("%v", err)
 			}
+			continue
+		} else {
+			fmt.Println("Invalid Command!")
 		}
 
 		if err := scanner.Err(); err != nil {
