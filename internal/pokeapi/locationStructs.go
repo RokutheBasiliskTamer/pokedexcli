@@ -1,5 +1,7 @@
 package pokeapi
 
+import "encoding/json"
+
 type PaginationResponse struct {
 	Count    int
 	Next     *string
@@ -7,9 +9,12 @@ type PaginationResponse struct {
 	Results  []namedAPIResource
 }
 
-type namedAPIResource struct {
-	Name string
-	Url  string
+func (p *PaginationResponse) UnByteify(byteData []byte) error {
+	//unmarshal byte data into struct for pagination requests
+	if err := json.Unmarshal(byteData, p); err != nil {
+		return err
+	}
+	return nil
 }
 
 type LocationArea struct {
@@ -22,6 +27,19 @@ type LocationArea struct {
 	Pokemon_encounters     []pokemonEncounter
 }
 
+func (l *LocationArea) UnByteify(byteData []byte) error {
+	//unmarshal byte data into struct for pagination requests
+	if err := json.Unmarshal(byteData, l); err != nil {
+		return err
+	}
+	return nil
+}
+
+type namedAPIResource struct {
+	Name string
+	Url  string
+}
+
 type pokemonEncounter struct {
 	Pokemon         namedAPIResource
 	Version_details []versionEncounterDetails
@@ -30,17 +48,6 @@ type pokemonEncounter struct {
 type encounterMethodRate struct {
 	Encounter_method namedAPIResource
 	Version_details  []versionDetails
-}
-
-type versionDetails struct {
-	Rate    int
-	Version namedAPIResource
-}
-
-type versionEncounterDetails struct {
-	Encounter_details []encounter
-	Version           namedAPIResource
-	Max_chance        int
 }
 
 type encounter struct {

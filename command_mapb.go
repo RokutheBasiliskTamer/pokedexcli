@@ -10,18 +10,23 @@ func commandMapB(config *pokeapi.Config, _name string) error {
 		fmt.Println("you're on the first page")
 		return nil
 	}
-	res, err := config.Client.GetLocationAreasPage(config.Previous)
+	res, err := config.Client.GetLocationArea(config.Previous)
 	if err != nil {
 		return fmt.Errorf("error grabbing map: %w", err)
 	}
 
-	for _, result := range res.Results {
+	var page pokeapi.PaginationResponse
+	if err = page.UnByteify(res); err != nil {
+		return fmt.Errorf("error unbyteifying: %w", err)
+	}
+
+	for _, result := range page.Results {
 
 		fmt.Printf("%s", result.Name)
 		fmt.Println()
 	}
 
-	config.Next = res.Next
-	config.Previous = res.Previous
+	config.Next = page.Next
+	config.Previous = page.Previous
 	return nil
 }

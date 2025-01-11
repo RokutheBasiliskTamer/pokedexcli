@@ -1,13 +1,17 @@
 package pokeapi
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"pokedexcli/internal/pokecache"
+	"strings"
 	"time"
 )
+
+type Endpoint interface {
+	UnByteify([]byte) error
+}
 
 type Client struct {
 	cache      pokecache.Cache
@@ -54,64 +58,61 @@ func (c *Client) makeRequest(url string) ([]byte, error) {
 
 }
 
-func (c *Client) GetLocationAreasPage(pageURL *string) (PaginationResponse, error) {
+func (c *Client) getData(pageURL string) ([]byte, error) {
 
-	fullUrl := ""
-	//if no url passed, use the first location-area
-	if pageURL != nil {
-		fullUrl = *pageURL
-	} else {
-		fullUrl = c.baseURL + "/location-area"
-	}
-	var response PaginationResponse
 	var byteData []byte
 
 	//see if weve cached that entry already
-	res, ok := c.cache.Get(fullUrl)
+	res, ok := c.cache.Get(pageURL)
 	if ok {
 
 		byteData = res
 	} else {
 
 		//make request and get byte data
-		res, err := c.makeRequest(fullUrl)
+		res, err := c.makeRequest(pageURL)
 		if err != nil {
-			return response, err
+			return byteData, err
 		}
 		byteData = res
-		c.cache.Add(fullUrl, byteData)
+		c.cache.Add(pageURL, byteData)
 	}
-	//unmarshal byte data into struct for pagination requests
-	if err := json.Unmarshal(byteData, &response); err != nil {
-		return response, err
-	}
-	return response, nil
 
+	return byteData, nil
 }
 
-func (c *Client) GetLocationArea(location string) (LocationArea, error) {
-	fullUrl := c.baseURL + "/location-area/" + location
-	var response LocationArea
-	var byteData []byte
-
-	//see if weve cached that entry already
-	res, ok := c.cache.Get(fullUrl)
-	if ok {
-
-		byteData = res
-	} else {
-
-		//make request and get byte data
-		res, err := c.makeRequest(fullUrl)
-		if err != nil {
-			return response, err
+func (c *Client) GetLocationArea(location *string) ([]byte, error) {
+	fullUrl := c.baseURL + "/location-area/"
+	if location != nil {
+		if strings.Contains(*location, fullUrl) {
+			fullUrl = *location
+		} else {
+			fullUrl += *location
 		}
-		byteData = res
-		c.cache.Add(fullUrl, byteData)
+
 	}
-	//unmarshal byte data into struct for pagination requests
-	if err := json.Unmarshal(byteData, &response); err != nil {
-		return response, err
+
+	byteData, err := c.getData(fullUrl)
+	if err != nil {
+		return nil, fmt.Errorf("error getting location: %w", err)
 	}
-	return response, nil
+	return byteData, nil
+}
+
+func (c *Client) GetPokemon(location *string) ([]byte, error) {
+	fullUrl := c.baseURL + "/pokemon/"
+	if location != nil {
+		if strings.Contains(*location, fullUrl) {
+			fullUrl = *location
+		} else {
+			fullUrl += *location
+		}
+
+	}
+
+	byteData, err := c.getData(fullUrl)
+	if err != nil {
+		return nil, fmt.Errorf("error getting location: %w", err)
+	}
+	return byteData, nil
 }
