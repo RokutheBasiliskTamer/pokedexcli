@@ -16,6 +16,7 @@ func commandCatch(cfg *pokeapi.Config, args ...string) error {
 	fmt.Printf("Throwing a Pokeball at %s...\n", name)
 	if _, ok := cfg.CaughtPokemon[name]; ok {
 		fmt.Printf("%s was caught!\n", name)
+		fmt.Println("You may now inspect it with the inspect command.")
 		return nil
 	}
 
@@ -33,6 +34,7 @@ func commandCatch(cfg *pokeapi.Config, args ...string) error {
 	if catch(exp) {
 		cfg.CaughtPokemon[name] = pokemon
 		fmt.Printf("%s was caught!\n", name)
+		fmt.Println("You may now inspect it with the inspect command.")
 		return nil
 	}
 	fmt.Printf("%s got away!\n", name)
