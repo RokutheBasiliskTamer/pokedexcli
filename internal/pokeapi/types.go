@@ -1,5 +1,7 @@
 package pokeapi
 
+import "pokedexcli/internal/pokecache"
+
 type PaginationResponse struct {
 	Count    int
 	Next     *string
@@ -14,4 +16,5 @@ type Config struct {
 	Next     *string
 	Previous *string
 	Client   *Client
+	Cache    *pokecache.Cache
 }

@@ -6,6 +6,7 @@ import (
 	"os"
 	"pokedexcli/internal/pokeapi"
 	"strings"
+	"time"
 )
 
 type cliCommand struct {
@@ -15,16 +16,13 @@ type cliCommand struct {
 }
 
 func cleanInput(text string) []string {
-	var cleanedInput []string
-	words := strings.Fields(strings.ToLower(text))
 
-	cleanedInput = append(cleanedInput, words...)
+	return strings.Fields(strings.ToLower(text))
 
-	return cleanedInput
 }
 
 func getCommands() (commands map[string]cliCommand) {
-	commands = map[string]cliCommand{
+	return map[string]cliCommand{
 		"exit": {
 			name:        "exit",
 			description: "Exit the Pokedex",
@@ -46,16 +44,19 @@ func getCommands() (commands map[string]cliCommand) {
 			callback:    commandMapB,
 		},
 	}
-	return commands
+
 }
 
 func startRepl() {
-
+	// initialize the empty config struct and set the client
 	var config pokeapi.Config
-	config.Client = pokeapi.NewClient()
+	config.Client = pokeapi.NewClient(5*time.Second, time.Minute*5)
 
+	// initialize the scanner and enter and endless loop
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
+		//print the repl name and scan for input
+		//clean the input when recieved and make sure it wasnt empty
 		fmt.Print("Pokedex >")
 		scanner.Scan()
 		input := scanner.Text()
@@ -63,16 +64,21 @@ func startRepl() {
 		if len(cleanedInput) == 0 {
 			continue
 		}
+
+		//set the command to the first word of the input and check if its a valid command
 		cmd := cleanedInput[0]
 		commands := getCommands()
 		command, ok := commands[cmd]
 		if ok {
+			//if its valid call the commands callback
+			fmt.Println()
 			if err := command.callback(&config); err != nil {
 				fmt.Println()
 				fmt.Printf("%v", err)
 			}
 			continue
 		} else {
+			//tell the user it was invalid and start loop again
 			fmt.Println("Invalid Command!")
 		}
 

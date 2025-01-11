@@ -5,17 +5,23 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"pokedexcli/internal/pokecache"
+	"time"
 )
 
 type Client struct {
+	cache      pokecache.Cache
 	httpClient http.Client
 	baseURL    string
 }
 
-func NewClient() *Client {
+func NewClient(timeout, cacheInterval time.Duration) *Client {
 	return &Client{
-		httpClient: http.Client{},
-		baseURL:    "https://pokeapi.co/api/v2",
+		cache: *pokecache.NewCache(cacheInterval),
+		httpClient: http.Client{
+			Timeout: timeout,
+		},
+		baseURL: "https://pokeapi.co/api/v2",
 	}
 }
 
@@ -58,13 +64,25 @@ func (c *Client) GetLocationAreas(pageURL *string) (PaginationResponse, error) {
 		fullUrl = c.baseURL + "/location-area"
 	}
 	var response PaginationResponse
-	//make request and get byte data
-	res, err := c.makeRequest(fullUrl)
-	if err != nil {
-		return response, err
+	var byteData []byte
+
+	//see if weve cached that entry already
+	res, ok := c.cache.Get(fullUrl)
+	if ok {
+
+		byteData = res
+	} else {
+
+		//make request and get byte data
+		res, err := c.makeRequest(fullUrl)
+		if err != nil {
+			return response, err
+		}
+		byteData = res
+		c.cache.Add(fullUrl, byteData)
 	}
 	//unmarshal byte data into struct for pagination requests
-	if err := json.Unmarshal(res, &response); err != nil {
+	if err := json.Unmarshal(byteData, &response); err != nil {
 		return response, err
 	}
 	return response, nil

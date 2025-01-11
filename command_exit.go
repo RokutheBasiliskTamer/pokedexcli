@@ -7,7 +7,6 @@ import (
 )
 
 func commandExit(_config *pokeapi.Config) error {
-	fmt.Println()
 	fmt.Println("Closing the Pokedex... Goodbye!")
 
 	os.Exit(0)

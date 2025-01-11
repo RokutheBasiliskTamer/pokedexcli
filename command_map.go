@@ -11,7 +11,6 @@ func commandMap(config *pokeapi.Config) error {
 		return fmt.Errorf("error grabbing map: %w", err)
 	}
 
-	fmt.Println()
 	for _, result := range res.Results {
 		fmt.Printf("%s", result.Name)
 		fmt.Println()
