@@ -12,7 +12,7 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(config *pokeapi.Config) error
+	callback    func(config *pokeapi.Config, name string) error
 }
 
 func cleanInput(text string) []string {
@@ -43,6 +43,11 @@ func getCommands() (commands map[string]cliCommand) {
 			description: "Displays previous page of 20 locations",
 			callback:    commandMapB,
 		},
+		"explore": {
+			name:        "explore {location}",
+			description: "Displays pokemon in a given location",
+			callback:    commandExplore,
+		},
 	}
 
 }
@@ -65,14 +70,18 @@ func startRepl() {
 			continue
 		}
 
-		//set the command to the first word of the input and check if its a valid command
+		//set the command to the first word of the input and the arguement to the second then check if its a valid command
 		cmd := cleanedInput[0]
+		var arg string
+		if len(cleanedInput) > 1 {
+			arg = cleanedInput[1]
+		}
 		commands := getCommands()
 		command, ok := commands[cmd]
 		if ok {
 			//if its valid call the commands callback
 			fmt.Println()
-			if err := command.callback(&config); err != nil {
+			if err := command.callback(&config, arg); err != nil {
 				fmt.Println()
 				fmt.Printf("%v", err)
 			}

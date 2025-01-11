@@ -54,7 +54,7 @@ func (c *Client) makeRequest(url string) ([]byte, error) {
 
 }
 
-func (c *Client) GetLocationAreas(pageURL *string) (PaginationResponse, error) {
+func (c *Client) GetLocationAreasPage(pageURL *string) (PaginationResponse, error) {
 
 	fullUrl := ""
 	//if no url passed, use the first location-area
@@ -87,4 +87,31 @@ func (c *Client) GetLocationAreas(pageURL *string) (PaginationResponse, error) {
 	}
 	return response, nil
 
+}
+
+func (c *Client) GetLocationArea(location string) (LocationArea, error) {
+	fullUrl := c.baseURL + "/location-area/" + location
+	var response LocationArea
+	var byteData []byte
+
+	//see if weve cached that entry already
+	res, ok := c.cache.Get(fullUrl)
+	if ok {
+
+		byteData = res
+	} else {
+
+		//make request and get byte data
+		res, err := c.makeRequest(fullUrl)
+		if err != nil {
+			return response, err
+		}
+		byteData = res
+		c.cache.Add(fullUrl, byteData)
+	}
+	//unmarshal byte data into struct for pagination requests
+	if err := json.Unmarshal(byteData, &response); err != nil {
+		return response, err
+	}
+	return response, nil
 }
