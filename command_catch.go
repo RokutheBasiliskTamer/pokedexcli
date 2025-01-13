@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"pokedexcli/internal/pokeapi"
+
+	"github.com/RokutheBasiliskTamer/pokedexcli/internal/pokeapi"
 )
 
 func commandCatch(cfg *pokeapi.Config, args ...string) error {

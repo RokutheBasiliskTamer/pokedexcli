@@ -4,9 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"pokedexcli/internal/pokeapi"
 	"strings"
 	"time"
+
+	"github.com/RokutheBasiliskTamer/pokedexcli/internal/pokeapi"
 )
 
 type cliCommand struct {

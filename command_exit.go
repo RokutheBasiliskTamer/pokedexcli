@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
-	"pokedexcli/internal/pokeapi"
+
+	"github.com/RokutheBasiliskTamer/pokedexcli/internal/pokeapi"
 )
 
 func commandExit(_cfg *pokeapi.Config, _args ...string) error {

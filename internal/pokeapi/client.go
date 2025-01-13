@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"pokedexcli/internal/pokecache"
 	"strings"
 	"time"
+
+	"github.com/RokutheBasiliskTamer/pokedexcli/internal/pokecache"
 )
 
 type Endpoint interface {

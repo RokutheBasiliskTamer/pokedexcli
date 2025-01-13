@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"pokedexcli/internal/pokeapi"
+
+	"github.com/RokutheBasiliskTamer/pokedexcli/internal/pokeapi"
 )
 
 func commandMap(cfg *pokeapi.Config, _args ...string) error {
